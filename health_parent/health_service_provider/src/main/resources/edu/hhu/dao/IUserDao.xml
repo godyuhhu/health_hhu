@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.hhu.dao.IUserDao">
+    <resultMap id="userMap" type="user">
+        <id column="id" property="id"></id>
+        <result column="birthday" property="birthday"></result>
+        <result column="gender" property="gender"></result>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="remark" property="remark"></result>
+        <result column="station" property="station"></result>
+        <result column="telephone" property="telephone"></result>
+        <!--与角色建立关联关系-->
+        <collection property="roles" ofType="role">
+            <id column="r_id" property="id"></id>
+            <result column="r_name" property="name"></result>
+            <result column="r_keyword" property="keyword"></result>
+            <result column="r_description" property="description"></result>
+            <!--与权限建立关联关系-->
+            <collection property="permissions" ofType="permission">
+                <id column="p_id" property="id"></id>
+                <result column="p_name" property="name"></result>
+                <result column="p_keyword" property="keyword"></result>
+                <result column="p_description" property="description"></result>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="findUserByName" parameterType="String" resultMap="userMap">
+        SELECT u.*,
+			   r.id r_id, r.name r_name, r.keyword r_keyword, r.description r_description,
+			   p.id p_id, p.name p_name, p.keyword p_keyword, p.description p_description
+        from t_user u left join t_user_role u_r  on u.id = u_r.user_id
+					  left join t_role r on r.id = u_r.role_id
+					  left join t_role_permission r_p on r_p.role_id = r.id
+				      LEFT JOIN t_permission p on p.id = r_p.permission_id
+        where u.username = #{value};
+    </select>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.hhu.dao.IMemberDao">
+    <!--根据电话号码查询用户信息-->
+    <select id="findMemberByTelephone" parameterType="String" resultType="member">
+        select * from t_member where phoneNumber = #{phoneNumber};
+    </select>
+    <!--新增用户信息-->
+    <insert id="addMember" parameterType="member">
+        <selectKey resultType="int" keyProperty="id" keyColumn="id" order="AFTER">
+            select LAST_INSERT_ID();
+        </selectKey>
+        insert into t_member(fileNumber,name,sex,idCard,phoneNumber,regTime,password,email,birthday,remark)
+               values(#{fileNumber},#{name},#{sex},#{idCard},#{phoneNumber},#{regTime},#{password},#{email},#{birthday},#{remark});
+    </insert>
+    <!-- 查询到该月为止累计的会员数量-->
+    <select id="findMemberTotalCountByMonth" resultType="int" parameterType="String">
+        select count(*) from t_member where regTime &lt;= #{value};
+    </select>
+
+    <!--获取今天新增的会员数-->
+    <select id="findTodayNewMember" resultType="int" parameterType="String">
+        select count(id) from t_member
+        where regTime = #{value};
+    </select>
+
+    <!--获取总会员数-->
+    <select id="findTotalMember" resultType="int" >
+        select count(id) from t_member;
+    </select>
+
+    <!--获取本周新增会员数-->
+    <select id="findThisWeekNewMember" resultType="int" parameterType="String">
+        select count(id) from t_member
+        where regTime &gt;= #{value};
+    </select>
+
+    <!--获取本月新增会员数-->
+    <select id="findThisMonthNewMember" resultType="int" parameterType="String">
+        select count(id) from t_member
+        where regTime &gt;= #{value};
+    </select>
+
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.hhu.dao.ICheckGroupDao">
+    <!--新增检查组基本信息-->
+    <insert id="addCheckGroup" parameterType="checkGroup">
+        <selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="int">
+            select LAST_INSERT_ID();
+        </selectKey>
+        insert into t_checkGroup(code,name,helpCode,sex,remark,attention)
+               values(#{code},#{name},#{helpCode},#{sex},#{remark},#{attention});
+    </insert>
+    <!--新增关联条件-->
+    <insert id="addCheckGroupAndCheckItemRel" parameterType="map">
+        insert into t_checkGroup_checkItem(checkGroup_id,checkItem_id) values(#{checkGroupId},#{checkItemId})
+    </insert>
+    <!--分页条件查询-->
+    <select id="findCheckGroupsWithPage" parameterType="String" resultType="checkGroup">
+        select * from t_checkGroup
+        <where>
+            <if test=" value != null and value.length > 0 ">
+                and name like #{value} or code like #{value} or helpCode like #{value}
+            </if>
+        </where>
+    </select>
+  <!--检查组所包含的检查项信息回显-->
+    <select id="findCheckItemsByCheckGroupId" parameterType="int" resultType="int">
+        select checkItem_id from t_checkGroup_checkItem where checkGroup_id = #{id};
+    </select>
+    <!--删除检查组基本信息-->
+    <delete id="deleteCheckGroupById" parameterType="int">
+        delete from t_checkGroup where id = #{id}
+    </delete>
+   <!-- 根据id查询相应检查项进行数据回显-->
+    <select id="findCheckGroupById" parameterType="int" resultType="checkGroup">
+        select  * from t_checkGroup where id = #{id};
+    </select>
+    <!--修改检查项-->
+    <update id="editCheckGroup" parameterType="checkGroup">
+        update t_checkGroup
+        set code=#{code},name = #{name},helpCode = #{helpCode}, sex = #{sex},remark = #{remark},attention = #{attention}
+        where id = #{id};
+    </update>
+
+    <!--删除原有的关联关系-->
+    <delete id="deleteCheckItemAndCheckGroupRel" parameterType="int">
+        delete from t_checkGroup_checkItem where checkGroup_id = #{id};
+    </delete>
+
+    <!--查询所有检查组信息-->
+    <select id="findAllCheckGroups" resultType="checkGroup">
+        select * from t_checkGroup;
+    </select>
+
+</mapper>

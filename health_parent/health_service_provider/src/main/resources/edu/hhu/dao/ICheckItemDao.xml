@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.hhu.dao.ICheckItemDao">
+    <!--新增检查项-->
+    <insert id="addCheckItem" parameterType="checkItem">
+        insert into t_checkItem(code,name,sex,age,price,type,remark,attention)
+               values(#{code},#{name},#{sex},#{age},#{price},#{type},#{remark},#{attention});
+    </insert>
+    <!--分页条件查询-->
+    <select id="findCheckItemsWithPage" parameterType="String" resultType="checkItem">
+        select * from t_checkItem
+        <where>
+            <if test=" value != null and value.length > 0 ">
+                and name like #{value} or code like #{value}
+            </if>
+        </where>
+    </select>
+    <!--检查关联条件-->
+    <select id="findCheckItemRelation" parameterType="int" resultType="int">
+        select checkGroup_id from t_checkGroup_checkItem where checkItem_id = #{id};
+    </select>
+    <!--删除检查项-->
+    <delete id="deleteCheckItemById" parameterType="int">
+        delete from t_checkItem where id = #{id}
+    </delete>
+    <!--根据id查询相应检查项进行数据回显-->
+    <select id="findCheckItemById" parameterType="int" resultType="checkItem">
+        select  * from t_checkItem where id = #{id};
+    </select>
+    <!--修改检查项-->
+    <update id="editCheckItem" parameterType="checkItem">
+        update t_checkItem
+        set name = #{name}, sex = #{sex},age = #{age},price = #{price},type = #{type},remark = #{remark},attention = #{attention}
+        where id = #{id};
+    </update>
+
+    <!--查询所有检查项信息-->
+    <select id="findAllCheckItems" resultType="checkItem">
+        select * from t_checkItem;
+    </select>
+</mapper>

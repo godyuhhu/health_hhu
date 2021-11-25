@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.hhu.dao.ISetMealDao">
+    <!--套餐的map集合以便查出套餐的中包含的检查组和检查项信息-->
+    <resultMap id="setMealMap" type="setMeal">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <result property="code" column="code"></result>
+        <result property="helpCode" column="helpCode"></result>
+        <result property="sex" column="sex"></result>
+        <result property="age" column="age"></result>
+        <result property="price" column="price"></result>
+        <result property="remark" column="remark"></result>
+        <result property="attention" column="attention"></result>
+        <result property="img" column="img"></result>
+        <!--关联检查组信息-->
+        <collection property="checkGroups" ofType="checkGroup">
+            <id property="id" column="cg_id"></id>
+            <result property="name" column="cg_name"></result>
+            <result property="code" column="cg_code"></result>
+            <result property="helpCode" column="cg_helpCode"></result>
+            <result property="sex" column="cg_sex"></result>
+            <result property="remark" column="cg_remark"></result>
+            <result property="attention" column="cg_attention"></result>
+            <!--关联相应的检查项信息-->
+            <collection property="checkItems" ofType="checkItem">
+                <id property="id" column="ci_id"></id>
+                <result property="name" column="ci_name"></result>
+                <result property="code" column="ci_code"></result>
+                <result property="sex" column="ci_sex"></result>
+                <result property="age" column="ci_age"></result>
+                <result property="price" column="ci_price"></result>
+                <result property="type" column="type"></result>
+                <result property="remark" column="ci_remark"></result>
+                <result property="attention" column="ci_attention"></result>
+            </collection>
+        </collection>
+
+    </resultMap>
+    <!--新增检查组基本信息-->
+    <insert id="addSetMeal" parameterType="SetMeal">
+        <selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="int">
+            select LAST_INSERT_ID();
+        </selectKey>
+        insert into t_setMeal(code,name,helpCode,sex,age,price,remark,attention,img)
+               values(#{code},#{name},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img});
+    </insert>
+    <!--新增关联条件-->
+    <insert id="addSetMealAndCheckGroupRel" parameterType="map">
+        insert into t_setMeal_checkGroup(setMeal_id,checkGroup_id) values(#{setMealId},#{checkGroupId})
+    </insert>
+    <!--分页条件查询-->
+    <select id="findSetMealsWithPage" parameterType="String" resultType="setMeal">
+        select * from t_setMeal
+        <where>
+            <if test=" value != null and value.length > 0 ">
+                and name like #{value} or code like #{value} or helpCode like #{value}
+            </if>
+        </where>
+    </select>
+    <!--查询所有检查组信息-->
+    <select id="findAllSetMeals" resultType="SetMeal">
+        select * from t_setMeal;
+    </select>
+    <!-- 根据id查询套餐数据-->
+      <select id="findSetMealById" parameterType="int" resultMap="setMealMap">
+         SELECT s.*,
+			 cg.id cg_id,cg.name cg_name, cg.code cg_code, cg.helpCode cg_helpCode, cg.sex cg_sex, cg.remark cg_remark, cg.attention cg_attention,
+			 ci.id ci_id,ci.name ci_name, ci.code ci_code, ci.age = ci.age, ci.sex ci_sex, ci.price ci_price, ci.type, ci.remark ci_remark, ci.attention ci_attention
+         from t_setmeal s left join t_setmeal_checkgroup s_t on s.id = s_t.setmeal_id
+								 left join t_checkgroup cg on cg.id = s_t.checkgroup_id
+							   left join t_checkgroup_checkitem cg_ci on cg.id = cg_ci.checkgroup_id
+								 LEFT JOIN t_checkitem ci on ci.id = cg_ci.checkitem_id
+         where s.id = #{id};
+      </select>
+  <!--检查组所包含的检查项信息回显-->
+ <!--   <select id="findCheckItemsByCheckGroupId" parameterType="int" resultType="int">
+        select checkItem_id from t_checkGroup_checkItem where checkGroup_id = #{id};
+    </select>-->
+    <!--删除检查组基本信息-->
+   <!-- <delete id="deleteCheckGroupById" parameterType="int">
+        delete from t_checkGroup where id = #{id}
+    </delete>-->
+
+    <!--修改检查项-->
+   <!-- <update id="editCheckGroup" parameterType="checkGroup">
+        update t_checkGroup
+        set code=#{code},name = #{name},helpCode = #{helpCode}, sex = #{sex},remark = #{remark},attention = #{attention}
+        where id = #{id};
+    </update>-->
+
+    <!--删除原有的关联关系-->
+   <!-- <delete id="deleteCheckItemAndCheckGroupRel" parameterType="int">
+        delete from t_checkGroup_checkItem where checkGroup_id = #{id};
+    </delete>-->
+</mapper>
