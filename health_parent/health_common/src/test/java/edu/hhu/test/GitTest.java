@@ -9,6 +9,7 @@ public class GitTest {
         System.out.println("111111111dev");
         System.out.println("111111111dev");
         System.out.println("111111111dev");
+        System.out.println("111111111master_pull");
 
     }
 }
